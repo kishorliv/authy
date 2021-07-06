@@ -5,6 +5,7 @@ const router = express.Router();
 
 const validation = require('./account.validation');
 const accountService = require('./account.service');
+const utils = require('./account.utils');
 
 router.post('/register', validation.registerSchema, register);
 router.post('/login', validation.loginSchema, login);
@@ -27,7 +28,10 @@ function register(req, res, next) {
 function login(req, res, next) {
   accountService
     .login(req.body, req.get('origin'))
-    .then((account) => res.status(200).json(account))
+    .then(({ refreshToken, ...account }) => {
+      utils.setTokenInHttpOnlyCookie(res, account);
+      res.status(200).json(account);
+    })
     .catch(next);
 }
 

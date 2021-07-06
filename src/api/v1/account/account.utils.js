@@ -5,13 +5,16 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
 const config = require('../../../../config.dev');
+const db = require('../../../helpers/db');
 
 module.exports = {
   hashPassword,
-  generateRandomToken,
   sendEmail,
   sendVerificationEmail,
+  generateRandomToken,
   generateJwtToken,
+  generateRefreshToken,
+  setTokenInHttpOnlyCookie,
 };
 
 async function sendVerificationEmail(account, origin) {
@@ -51,7 +54,24 @@ function generateRandomToken() {
 }
 
 function generateJwtToken(account) {
-  jwt.sign({ sub: account.id, id: account.id }, process.env.SECRET_JWT, {
+  return jwt.sign({ sub: account.id, id: account.id }, process.env.SECRET_JWT, {
     expiresIn: '10m',
   });
+}
+
+function generateRefreshToken(account) {
+  return new db.RefreshToken({
+    account: account.id,
+    token: generateRandomToken(),
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+  });
+}
+
+function setTokenInHttpOnlyCookie(res, token) {
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  };
+
+  res.cookie('refreshToken', token, cookieOptions);
 }

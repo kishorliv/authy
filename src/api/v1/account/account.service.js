@@ -66,8 +66,11 @@ async function login(userData, origin) {
     throw 'Account is not verified! Please check your email for verification instructions.';
   }
 
-  // valid user details so generate jwt
+  // valid user details so generate jwt access token and refresh token
   const jwtToken = utils.generateJwtToken(account);
+  const refreshToken = utils.generateRefreshToken(account);
+
+  await refreshToken.save();
 
   const {
     id,
@@ -86,6 +89,7 @@ async function login(userData, origin) {
     createdAt,
     verifiedAt,
     jwtToken,
+    refreshToken: refreshToken.token,
   };
 }
 
