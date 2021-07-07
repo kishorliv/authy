@@ -8,6 +8,7 @@ const schema = new Schema({
   expiresAt: Date,
   createdAt: { type: Date, default: Date.now },
   revokedAt: Date,
+  replacedByToken: String,
 });
 
 schema.virtual('isExpired').get(function () {
