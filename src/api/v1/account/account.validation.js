@@ -6,6 +6,8 @@ module.exports = {
   registerSchema,
   loginSchema,
   verifyEmailSchema,
+  refreshTokenSchema,
+  revokeTokenSchema,
 };
 
 function registerSchema(req, res, next) {
@@ -32,6 +34,22 @@ function loginSchema(req, res, next) {
 function verifyEmailSchema(req, res, next) {
   const schema = Joi.object({
     emailVerificationToken: Joi.string().required(),
+  });
+
+  validateRequest(res, next, schema);
+}
+
+function refreshTokenSchema(req, res, next) {
+  const schema = Joi.object({
+    token: Joi.string().empty(''),
+  });
+
+  validateRequest(res, next, schema);
+}
+
+function revokeTokenSchema(req, res, next) {
+  const schema = Joi.object({
+    token: Joi.string().empty(''),
   });
 
   validateRequest(res, next, schema);

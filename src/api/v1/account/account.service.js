@@ -9,10 +9,12 @@ module.exports = {
   register,
   login,
   verifyEmail,
+  refreshToken,
+  revokeToken,
 };
 
 /**
- *
+ * Register a user account
  * @param {object} userData An object containing user details
  * @param {string} origin Domain originating the call
  */
@@ -46,7 +48,7 @@ async function register(userData, origin) {
 }
 
 /**
- *
+ * Authenticate an account
  * @param {object} userData An object containing user details
  * @param {string} origin Domain originating the call
  * @returns Authenticated user info
@@ -68,6 +70,7 @@ async function login(userData, origin) {
 
   // valid user details so generate jwt access token and refresh token
   const jwtToken = utils.generateJwtToken(account);
+  // eslint-disable-next-line no-shadow
   const refreshToken = utils.generateRefreshToken(account);
 
   await refreshToken.save();
@@ -94,7 +97,7 @@ async function login(userData, origin) {
 }
 
 /**
- *
+ * Verify email based on verfication token
  * @param {string} emailVerificationToken A token for verifying email
  */
 async function verifyEmail(emailVerificationToken) {
@@ -108,4 +111,46 @@ async function verifyEmail(emailVerificationToken) {
   account.emailVerificationToken = undefined;
 
   await account.save();
+}
+
+/**
+ * Replace token with new refresh token
+ * @param {string} token Refresh token
+ * @returns { object } Object containing new jwt and refresh token
+ */
+async function refreshToken(token) {
+  const refToken = await db.RefreshToken.findOne({ token }).populate('account');
+  if (!refToken || !refToken.isValid) throw 'Invalid token!';
+
+  const newRefToken = utils.generateRefreshToken(refToken.account);
+
+  refToken.revokedAt = Date.now();
+  refToken.replacedByToken = newRefToken.token;
+
+  await refToken.save();
+  await newRefToken.save();
+
+  const newJwt = utils.generateJwtToken(refToken.account);
+
+  const { id, email } = refToken.account;
+
+  return {
+    id,
+    email,
+    newJwt,
+    refreshToken: newRefToken.token,
+  };
+}
+
+/**
+ * Revoke token
+ * @param {*} token Refresh token
+ */
+async function revokeToken(token) {
+  const refToken = await db.RefreshToken.findOne({ token }).populate('account');
+  if (!refToken || !refToken.isValid) throw 'Invalid token!';
+
+  refToken.revokedAt = Date.now();
+
+  await refToken.save();
 }
