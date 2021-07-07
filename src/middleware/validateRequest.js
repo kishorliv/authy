@@ -11,7 +11,7 @@ function validateRequest(req, next, joiSchema) {
   const { error, value } = joiSchema.validate(req.body, options);
 
   if (error) {
-    next('Validation error!');
+    next(`Validation error: ${error}`);
   } else {
     req.body = value;
     next();
