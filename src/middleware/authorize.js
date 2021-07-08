@@ -26,9 +26,8 @@ function authorize() {
 
     // attach user obj to the request
     req.user = user;
-    // eslint-disable-next-line no-shadow
-    req.user.ownsToken = (decodedToken) =>
-      !!refreshTokens.find((x) => x.token === decodedToken);
+    req.user.ownsToken = (_token) =>
+      !!refreshTokens.find((x) => x.token === _token);
     next();
   };
 }
