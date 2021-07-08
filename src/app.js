@@ -2,12 +2,14 @@ const express = require('express');
 
 const app = express();
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const swaggerRouter = require('./api/docs/swagger');
 const accountRouter = require('./api/v1/account/account.controller');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // allow requests from any origin and with credentials
 app.use(
@@ -30,6 +32,8 @@ app.use('/api/v1/api-docs', swaggerRouter);
 // global error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  console.log(err);
+
   if (typeof err === 'string') {
     // custom application error
     const is404 = err.toLowerCase().endsWith('not found');
