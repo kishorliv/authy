@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /* eslint-disable no-shadow */
 /* eslint-disable no-use-before-define */
 const express = require('express');
@@ -38,7 +39,7 @@ function login(req, res, next) {
   accountService
     .login(req.body, req.get('origin'))
     .then(({ refreshToken, ...account }) => {
-      utils.setTokenInHttpOnlyCookie(res, account);
+      utils.setTokenInHttpOnlyCookie(res, refreshToken);
       res.status(200).json(account);
     })
     .catch(next);
@@ -56,12 +57,20 @@ function verifyEmail(req, res, next) {
 }
 
 function refreshToken(req, res, next) {
+  if (
+    !req.hasOwnProperty('cookies') ||
+    !req.cookies.hasOwnProperty('refreshToken')
+  ) {
+    // eslint-disable-next-line no-throw-literal
+    throw 'Token not found in the request!';
+  }
+
   const token = req.cookies.refreshToken;
 
   accountService
     .refreshToken(token)
     .then(({ refreshToken, ...account }) => {
-      utils.setTokenInHttpOnlyCookie(refreshToken);
+      utils.setTokenInHttpOnlyCookie(res, refreshToken);
       res.json(account);
     })
     .catch(next);
