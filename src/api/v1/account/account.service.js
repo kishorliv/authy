@@ -144,7 +144,7 @@ async function refreshToken(token) {
 
 /**
  * Revoke token
- * @param {*} token Refresh token
+ * @param {string} token Refresh token
  */
 async function revokeToken(token) {
   const refToken = await db.RefreshToken.findOne({ token }).populate('account');
