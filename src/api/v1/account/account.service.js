@@ -7,7 +7,7 @@ const db = require('../../../helpers/db');
 
 module.exports = {
   register,
-  login,
+  authenticate,
   verifyEmail,
   refreshToken,
   revokeToken,
@@ -53,7 +53,7 @@ async function register(userData, origin) {
  * @param {string} origin Domain originating the call
  * @returns Authenticated user info
  */
-async function login(userData, origin) {
+async function authenticate(userData, origin) {
   const { email, password } = userData;
 
   const account = await db.Account.findOne({ email });
@@ -97,7 +97,7 @@ async function login(userData, origin) {
 }
 
 /**
- * Verify email based on verfication token
+ * Verify email based on verification token
  * @param {string} emailVerificationToken A token for verifying email
  */
 async function verifyEmail(emailVerificationToken) {

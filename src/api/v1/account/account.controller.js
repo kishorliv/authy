@@ -37,7 +37,7 @@ function register(req, res, next) {
 
 function login(req, res, next) {
   accountService
-    .login(req.body, req.get('origin'))
+    .authenticate(req.body, req.get('origin'))
     .then(({ refreshToken, ...account }) => {
       utils.setTokenInHttpOnlyCookie(res, refreshToken);
       res.status(200).json(account);
