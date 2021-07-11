@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
 const db = require('../helpers/db');
 
@@ -6,7 +5,7 @@ const db = require('../helpers/db');
 module.exports = authorize;
 
 function authorize() {
-  // eslint-disable-next-line no-use-before-define
+  /* eslint-disable consistent-return */
   return async (req, res, next) => {
     if (!req.headers || !req.headers.authorization) {
       return res
