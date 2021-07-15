@@ -36,7 +36,7 @@ function verifyEmailSchema(req, res, next) {
     emailVerificationToken: Joi.string().required(),
   });
 
-  validateRequest(res, next, schema);
+  validateRequest(req, next, schema);
 }
 
 function refreshTokenSchema(req, res, next) {
@@ -44,7 +44,7 @@ function refreshTokenSchema(req, res, next) {
     token: Joi.string().empty(''),
   });
 
-  validateRequest(res, next, schema);
+  validateRequest(req, next, schema);
 }
 
 function revokeTokenSchema(req, res, next) {
@@ -52,5 +52,5 @@ function revokeTokenSchema(req, res, next) {
     token: Joi.string().empty(''),
   });
 
-  validateRequest(res, next, schema);
+  validateRequest(req, next, schema);
 }
