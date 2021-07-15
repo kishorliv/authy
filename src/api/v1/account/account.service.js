@@ -59,7 +59,7 @@ async function authenticate(userData, origin) {
   const account = await db.Account.findOne({ email });
 
   // account valid and not verified
-  if (!account && !bcryptjs.compareSync(password, account.passwordHash)) {
+  if (!account || !bcryptjs.compareSync(password, account.passwordHash)) {
     throw 'Incorrect email or password!';
   }
 
