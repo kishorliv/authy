@@ -132,12 +132,8 @@ async function refreshToken(token) {
 
   const newJwt = utils.generateJwtToken(refToken.account);
 
-  const { id, email } = refToken.account;
-
   return {
-    id,
-    email,
-    newJwt,
+    jwtToken: newJwt,
     refreshToken: newRefToken.token,
   };
 }
