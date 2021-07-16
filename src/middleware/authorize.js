@@ -25,12 +25,13 @@ function authorize() {
     try {
       decodedToken = jwt.verify(token, process.env.SECRET_JWT);
     } catch (error) {
-      return res
-        .status(401)
-        .json({ error: true, message: 'Unauthorized! Token expired!' });
+      return res.status(401).json({
+        error: true,
+        message: `Unauthorized! Token expired! Detailed error: ${error}`,
+      });
     }
 
-    const user = await db.Account.findById({ id: decodedToken.id });
+    const user = await db.Account.findById(decodedToken.id);
 
     if (!user) {
       return res
