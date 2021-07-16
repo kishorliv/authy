@@ -53,9 +53,10 @@ function generateRandomToken() {
   return crypto.randomBytes(byteSize).toString('hex');
 }
 
+// TODO: change the duration
 function generateJwtToken(account) {
   return jwt.sign({ sub: account.id, id: account.id }, process.env.SECRET_JWT, {
-    expiresIn: '10m',
+    expiresIn: '5h',
   });
 }
 
@@ -68,9 +69,14 @@ function generateRefreshToken(account) {
 }
 
 function setTokenInHttpOnlyCookie(res, token) {
+  // sameSite and secure required to set cross origin cookies
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    // sameSite == 'none' requires secure(ie https). works in localhost too, fortunately.
+    sameSite: 'none',
+    // eslint-disable-next-line no-unneeded-ternary
+    secure: true,
   };
 
   res.cookie('refreshToken', token, cookieOptions);
