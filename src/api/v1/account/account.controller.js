@@ -21,7 +21,13 @@ router.post(
   revokeToken,
 );
 
+router.post('/auto-login', authorize(), autoLogin);
+
 module.exports = router;
+
+function autoLogin(req, res) {
+  res.status(200).json(req.user);
+}
 
 function register(req, res, next) {
   accountService
