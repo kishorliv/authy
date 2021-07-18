@@ -30,4 +30,10 @@ schema.set('toJSON', {
   },
 });
 
-module.exports = mongoose.model('Account', schema);
+// allow the model creation only once, if the model already exists just export it
+// issue: if this model is required more than once or recompiled, mongoose throws OverwriteModelError.
+/* eslint-disable dot-notation */
+
+module.exports = mongoose.models['Account']
+  ? mongoose.models['Account']
+  : mongoose.model('Account', schema);

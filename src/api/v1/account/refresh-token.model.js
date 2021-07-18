@@ -19,4 +19,10 @@ schema.virtual('isValid').get(function () {
   return !this.revokedAt && !this.isExpired;
 });
 
-module.exports = mongoose.model('RefreshToken', schema);
+// allow the model creation only once, if the model already exists just export it
+// issue: if this model is required more than once or recompiled, mongoose throws OverwriteModelError.
+/* eslint-disable dot-notation */
+
+module.exports = mongoose.models['RefreshToken']
+  ? mongoose.models['RefreshToken']
+  : mongoose.model('RefreshToken', schema);
