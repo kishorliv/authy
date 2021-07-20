@@ -53,10 +53,9 @@ function generateRandomToken() {
   return crypto.randomBytes(byteSize).toString('hex');
 }
 
-// TODO: change the duration
 function generateJwtToken(account) {
   return jwt.sign({ sub: account.id, id: account.id }, process.env.SECRET_JWT, {
-    expiresIn: '5h',
+    expiresIn: '10m',
   });
 }
 
