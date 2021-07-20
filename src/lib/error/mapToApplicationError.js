@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 const Joi = require('joi');
 
 const ApplicationError = require('src/lib/error/ApplicationError');
@@ -13,10 +14,9 @@ module.exports = mapToApplicationError;
  * @returns
  */
 function mapToApplicationError(error, overrides = {}) {
-  switch (error) {
-    case error instanceof Joi.ValidationError:
-      return new ApplicationError(mapJoiValidationError(error), overrides);
-    default:
-      return new ApplicationError(error, overrides);
+  if (error instanceof Joi.ValidationError) {
+    return new ApplicationError(mapJoiValidationError(error), overrides);
   }
+
+  return new ApplicationError(error, overrides);
 }
