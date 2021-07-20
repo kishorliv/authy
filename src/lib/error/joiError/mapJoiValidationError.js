@@ -29,7 +29,7 @@ module.exports = mapJoiValidationError;
 // eslint-disable-next-line no-underscore-dangle
 function mapJoiValidationError(joiError) {
   return {
-    type: ApplicationError.type.APP_NAME,
+    type: ApplicationError.type.AUTHY,
     code: 'VALIDATION_ERROR',
     message: 'Joi validation error.',
     errors: joiError.details,
