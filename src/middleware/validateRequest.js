@@ -1,3 +1,5 @@
+const mapToApplicationError = require('src/lib/error/mapToApplicationError');
+
 /* eslint-disable no-use-before-define */
 module.exports = validateRequest;
 
@@ -11,7 +13,8 @@ function validateRequest(req, next, joiSchema) {
   const { error, value } = joiSchema.validate(req.body, options);
 
   if (error) {
-    next(`Validation error: ${error}`);
+    const err = mapToApplicationError(error);
+    next(err);
   } else {
     req.body = value;
     next();
