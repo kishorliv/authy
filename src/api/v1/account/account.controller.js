@@ -66,7 +66,7 @@ function verifyEmail(req, res, next) {
 
 function refreshToken(req, res, next) {
   if (
-    !req.hasOwnProperty('cookies') ||
+    !req.hasOwnProperty('cookies') &&
     !req.cookies.hasOwnProperty('refreshToken')
   ) {
     // eslint-disable-next-line no-throw-literal
