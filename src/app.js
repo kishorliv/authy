@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
+const globalErrorHandler = require('src/middleware/globalErrorHandler');
 const swaggerRouter = require('./api/docs/swagger');
 const accountRouter = require('./api/v1/account/account.controller');
 
@@ -30,20 +31,6 @@ app.use('/api/v1/account', accountRouter);
 app.use('/api/v1/api-docs', swaggerRouter);
 
 // global error handler
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  console.log(err);
-
-  if (typeof err === 'string') {
-    // custom application error
-    const is404 = err.toLowerCase().endsWith('not found');
-    const statusCode = is404 ? 404 : 400;
-    return res.status(statusCode).json({ error: true, message: err });
-  }
-  // send internal server error messages in development only
-  return process.env.NODE_ENV === 'production'
-    ? res.status(500)
-    : res.status(500).json({ error: true, message: err.message });
-});
+app.use(globalErrorHandler);
 
 module.exports = app;

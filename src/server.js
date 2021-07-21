@@ -1,7 +1,7 @@
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 
 const { connectDB } = require('src/helpers/db');
-const app = require('./src/app');
+const app = require('./app');
 
 const PORT = process.env.PORT || 3000;
 

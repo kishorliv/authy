@@ -5,6 +5,9 @@ const express = require('express');
 
 const router = express.Router();
 
+const sendResponse = require('src/lib/response/sendResponse');
+const ApplicationError = require('src/lib/error/ApplicationError');
+const AccountError = require('src/api/v1/account/account.errors');
 const validation = require('./account.validation');
 const accountService = require('./account.service');
 const utils = require('./account.utils');
@@ -33,10 +36,11 @@ function register(req, res, next) {
   accountService
     .register(req.body, req.get('origin'))
     .then(() =>
-      res.json({
-        message:
-          'Registration successful. Please check your email for verification.',
-      }),
+      sendResponse(
+        res,
+        null,
+        'Registration successful. Please check your email for verification.',
+      ),
     )
     .catch(next);
 }
@@ -46,7 +50,7 @@ function login(req, res, next) {
     .authenticate(req.body, req.get('origin'))
     .then(({ refreshToken, ...account }) => {
       utils.setTokenInHttpOnlyCookie(res, refreshToken);
-      res.status(200).json(account);
+      sendResponse(res, account, 'Login successful.');
     })
     .catch(next);
 }
@@ -55,9 +59,7 @@ function verifyEmail(req, res, next) {
   accountService
     .verifyEmail(req.body.emailVerificationToken)
     .then(() =>
-      res.status(200).json({
-        message: 'Registration successful. You can login now.',
-      }),
+      sendResponse(res, null, 'Registration successful. You can login now.'),
     )
     .catch(next);
 }
@@ -68,7 +70,7 @@ function refreshToken(req, res, next) {
     !req.cookies.hasOwnProperty('refreshToken')
   ) {
     // eslint-disable-next-line no-throw-literal
-    throw 'Token not found in the request!';
+    throw new ApplicationError(AccountError.INVALID_REFRESH_TOKEN);
   }
 
   const token = req.cookies.refreshToken;
@@ -77,7 +79,7 @@ function refreshToken(req, res, next) {
     .refreshToken(token)
     .then(({ refreshToken, ...account }) => {
       utils.setTokenInHttpOnlyCookie(res, refreshToken);
-      res.json(account);
+      sendResponse(res, account, '');
     })
     .catch(next);
 }
@@ -87,15 +89,11 @@ function revokeToken(req, res, next) {
   const token = req.body.token || req.cookies.refreshToken;
 
   if (!token || !req.user.ownsToken(token)) {
-    return res
-      .status(400)
-      .json({ error: true, message: 'Unauthorized or no token found!' });
+    throw new ApplicationError(AccountError.INVALID_REFRESH_TOKEN);
   }
 
   accountService
     .revokeToken(token)
-    .then(() =>
-      res.status(200).json({ message: 'Token revoked successfully.' }),
-    )
+    .then(() => sendResponse(res, null, 'Token revoked successfully.'))
     .catch(next);
 }

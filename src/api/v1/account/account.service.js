@@ -2,8 +2,10 @@
 /* eslint-disable no-use-before-define */
 const bcryptjs = require('bcryptjs');
 
+const db = require('src/helpers/db');
+const ApplicationError = require('src/lib/error/ApplicationError');
 const utils = require('./account.utils');
-const db = require('../../../helpers/db');
+const AccountError = require('./account.errors');
 
 module.exports = {
   register,
@@ -23,13 +25,13 @@ async function register(userData, origin) {
 
   // account exists and verified
   if (account && account.isVerified) {
-    throw 'Account with this email already exists!';
+    throw new ApplicationError(AccountError.EMAIL_ALREADY_TAKEN_VERIFIED);
   }
 
   // account exists and not verified
   if (account && !account.isVerified) {
     await utils.sendVerificationEmail(account, origin);
-    throw 'Account with this email already exists! Please check your email for verification instructions.';
+    throw new ApplicationError(AccountError.EMAIL_ALREADY_TAKEN_NOT_VERIFIED);
   }
 
   const passwordHash = utils.hashPassword(userData.password);
@@ -60,12 +62,12 @@ async function authenticate(userData, origin) {
 
   // account valid and not verified
   if (!account || !bcryptjs.compareSync(password, account.passwordHash)) {
-    throw 'Incorrect email or password!';
+    throw new ApplicationError(AccountError.INCORRECT_CREDENTIALS);
   }
 
   if (account && !account.isVerified) {
     await utils.sendVerificationEmail(account, origin);
-    throw 'Account is not verified! Please check your email for verification instructions.';
+    throw new ApplicationError(AccountError.EMAIL_ALREADY_TAKEN_NOT_VERIFIED);
   }
 
   // valid user details so generate jwt access token and refresh token
@@ -104,7 +106,7 @@ async function verifyEmail(emailVerificationToken) {
   const account = await db.Account.findOne({ emailVerificationToken });
 
   if (!account) {
-    throw 'Email verification failed!';
+    throw new ApplicationError(AccountError.EMAIL_VERIFICATION_FAILED);
   }
 
   account.verifiedAt = Date.now();
@@ -120,7 +122,8 @@ async function verifyEmail(emailVerificationToken) {
  */
 async function refreshToken(token) {
   const refToken = await db.RefreshToken.findOne({ token }).populate('account');
-  if (!refToken || !refToken.isValid) throw 'Invalid token!';
+  if (!refToken || !refToken.isValid)
+    throw new ApplicationError(AccountError.INVALID_REFRESH_TOKEN);
 
   const newRefToken = utils.generateRefreshToken(refToken.account);
 
@@ -144,7 +147,8 @@ async function refreshToken(token) {
  */
 async function revokeToken(token) {
   const refToken = await db.RefreshToken.findOne({ token }).populate('account');
-  if (!refToken || !refToken.isValid) throw 'Invalid token!';
+  if (!refToken || !refToken.isValid)
+    throw new ApplicationError(AccountError.INVALID_REFRESH_TOKEN);
 
   refToken.revokedAt = Date.now();
 
