@@ -16,20 +16,14 @@ const authorize = require('../../../middleware/authorize');
 router.post('/register', validation.registerSchema, register);
 router.post('/login', validation.loginSchema, login);
 router.post('/verify-email', validation.verifyEmailSchema, verifyEmail);
-router.post('/refresh-token', validation.refreshTokenSchema, refreshToken);
-router.post(
-  '/revoke-token',
-  authorize(),
-  validation.revokeTokenSchema,
-  revokeToken,
-);
-
+router.post('/refresh-token', refreshToken);
+router.post('/revoke-token', authorize(), revokeToken);
 router.post('/auto-login', authorize(), autoLogin);
 
 module.exports = router;
 
 function autoLogin(req, res) {
-  res.status(200).json(req.user);
+  sendResponse(res, req.user, '');
 }
 
 function register(req, res, next) {
@@ -86,7 +80,7 @@ function refreshToken(req, res, next) {
 
 // eslint-disable-next-line consistent-return
 function revokeToken(req, res, next) {
-  const token = req.body.token || req.cookies.refreshToken;
+  const token = req.body.refreshToken || req.cookies.refreshToken;
 
   if (!token || !req.user.ownsToken(token)) {
     throw new ApplicationError(AccountError.INVALID_REFRESH_TOKEN);
