@@ -32,8 +32,7 @@ function mapJoiValidationError(joiError) {
     type: ApplicationError.type.AUTHY,
     code: 'VALIDATION_ERROR',
     message: 'Joi validation error.',
-    errors: joiError.details,
+    errors: joiError.details.map((detail) => detail.message),
     statusCode: 400,
-    meta: {},
   };
 }
