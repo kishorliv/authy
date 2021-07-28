@@ -19,6 +19,7 @@ module.exports = {
 
 async function sendVerificationEmail(account, origin) {
   let message;
+  const verificationUrl = `${origin}/account/verify-email?token=${account.emailVerificationToken}`;
 
   if (!origin) {
     message = `<p>Please use the token below to verify the api route /account/verify-email</p>
@@ -27,8 +28,6 @@ async function sendVerificationEmail(account, origin) {
     message = `<p>Please use this link to verify:</p>
                    <p><a href="${verificationUrl}">${verificationUrl}</a></p>`;
   }
-
-  const verificationUrl = `${origin}/account/verify-email?token=${account.emailVerificationToken}`;
 
   await sendEmail({
     to: account.email,
