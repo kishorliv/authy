@@ -30,6 +30,8 @@ async function register(userData, origin) {
 
   // account exists and not verified
   if (account && !account.isVerified) {
+    account.emailVerificationToken = utils.generateRandomToken();
+    await account.save();
     await utils.sendVerificationEmail(account, origin);
     throw new ApplicationError(AccountError.EMAIL_ALREADY_TAKEN_NOT_VERIFIED);
   }
